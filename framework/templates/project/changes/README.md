@@ -1,0 +1,17 @@
+# Changes
+
+One folder per unit of work: `NNN-kebab-slug/`.
+
+```
+NNN-slug/
+├── change.md     WHAT changes and why (reviewed at gate 1)
+├── plan.md       HOW (reviewed at gate 2)
+├── tasks.md      ordered work items, traceable to acceptance criteria
+└── contracts/    optional: OpenAPI/AsyncAPI fragments, schemas
+```
+
+Folders are never deleted — they are the history. Status lives in the
+frontmatter of `change.md`, and the table below is built from it.
+
+<!-- BEGIN GENERATED: changes — do not edit by hand -->
+<!-- END GENERATED -->

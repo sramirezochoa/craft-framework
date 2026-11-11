@@ -1,0 +1,25 @@
+# Connectors (MCP servers)
+#
+# Canonical list. framework/craft.py sync generates each tool's config from
+# this file so Claude, Codex and others see the same set.
+#
+# NEVER put credentials here. Reference environment variables only.
+
+servers: []
+
+# Example:
+#
+# servers:
+#   - name: github
+#     description: Issues and pull requests for this project
+#     required: true
+#     command: npx
+#     args: ["-y", "@modelcontextprotocol/server-github"]
+#     env:
+#       GITHUB_TOKEN: ${GITHUB_TOKEN}
+#
+#   - name: postgres
+#     description: Read-only access to the staging database
+#     required: false
+#     command: npx
+#     args: ["-y", "@modelcontextprotocol/server-postgres", "${STAGING_DB_URL}"]
