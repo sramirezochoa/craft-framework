@@ -3,6 +3,17 @@
 All notable changes to the framework itself. Projects pin a version in
 `framework/VERSION`.
 
+## [0.11.2] — tooling.md matches the tooling
+
+### Fixed
+- `framework/tooling.md` named `sync-adapters.sh`, which was folded into
+  `craft.py sync` long ago. It now names the real command, says generated
+  adapters are committed and checked by verify, and stops claiming that MCP
+  and Codex configs are generated — they are not yet.
+- §3 pointed at a `run_tests` function in `verify.sh`; project commands go in
+  `project_lint` / `project_test` in `scripts/project/verify-impl.sh`.
+- No project action needed.
+
 ## [0.11.1] — verify runs on Windows
 
 ### Fixed
