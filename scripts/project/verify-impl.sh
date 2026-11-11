@@ -2,7 +2,7 @@
 #
 # PROJECT-OWNED — this is yours. The framework never overwrites it.
 #
-# Sourced by framework/scripts/verify.sh. Define the three functions below
+# Sourced by framework/craft.py verify. Define the three functions below
 # with your project's commands. Anything you leave undefined is skipped,
 # except project_test, which is required.
 #
