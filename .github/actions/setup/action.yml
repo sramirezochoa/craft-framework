@@ -1,0 +1,28 @@
+name: Project setup
+description: >
+  PROJECT-OWNED. Installs this project's language toolchain before verify runs.
+  The framework never overwrites this file, so an upgrade cannot clobber your
+  build setup.
+
+runs:
+  using: composite
+  steps:
+    # PROJECT: replace with your toolchain. Examples below — delete what you
+    # do not need. Leave the no-op step if the project needs nothing.
+
+    # - uses: actions/setup-java@v4
+    #   with:
+    #     java-version: '21'
+    #     distribution: temurin
+    #     cache: maven
+
+    # - uses: actions/setup-node@v4
+    #   with:
+    #     node-version: '20'
+    #     cache: npm
+    # - run: npm ci
+    #   shell: bash
+
+    - name: No project toolchain configured
+      shell: bash
+      run: echo "::notice::No toolchain configured in .github/actions/setup/action.yml"

@@ -1,0 +1,16 @@
+This file marks the CRAFT framework's own repository.
+
+Its presence means:
+  - `framework/` is the work, not read-only reference
+  - `craft.py manifest`, `gates`, `release` and `init` will run
+  - `verify` does not warn that framework files have been modified
+
+Its absence means this is a project using the framework, where the reverse
+holds on every point.
+
+`python3 framework/craft.py init` deletes this file, which is what turns a
+clone of the framework into a project. It lives at the repository root rather
+than inside `framework/` so that `craft.py upgrade`, which copies only
+`framework/`, can never carry it into a project.
+
+Do not delete it by hand in the framework repository.

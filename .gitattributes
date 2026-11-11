@@ -1,0 +1,19 @@
+# Normalise line endings so scripts work identically on Windows, macOS and Linux.
+* text=auto eol=lf
+
+# Scripts must always be LF, or they fail with confusing errors under bash.
+*.sh      text eol=lf
+*.py      text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.md      text eol=lf
+
+# Windows-native files keep CRLF.
+*.bat     text eol=crlf
+*.cmd     text eol=crlf
+
+# Binaries.
+*.png     binary
+*.jpg     binary
+*.pdf     binary
+*.zip     binary

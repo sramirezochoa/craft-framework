@@ -1,0 +1,18 @@
+# Generated adapters — regenerate with: bash framework/scripts/sync-adapters.sh
+# Commit them instead if collaborators cannot run the script.
+.claude/skills/
+.cursor/rules/
+
+# Local tool state
+.claude/settings.local.json
+.DS_Store
+Thumbs.db
+
+# Build output — PROJECT: extend for your stack
+target/
+build/
+dist/
+node_modules/
+__pycache__/
+*.pyc
+.venv/

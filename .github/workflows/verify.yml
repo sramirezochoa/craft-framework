@@ -1,0 +1,55 @@
+# FRAMEWORK-OWNED — do not edit.
+# Project toolchain setup belongs in .github/actions/setup/action.yml.
+
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    name: verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # All three, always. The portability claim is only true if it is tested.
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    defaults:
+      run:
+        # Git Bash on Windows, so one script runs everywhere.
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Project setup
+        uses: ./.github/actions/setup
+
+      - name: Check line endings
+        run: |
+          # A CRLF shell script fails with baffling errors. Catch it here.
+          if grep -rlI $'\r' scripts/ framework/craft.py 2>/dev/null | grep -q .; then
+            echo "::error::CRLF line endings found in scripts — check .gitattributes"
+            exit 1
+          fi
+
+      - name: Verify
+        run: bash scripts/verify.sh
+
+  lint-shell:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shellcheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y shellcheck
+          shellcheck scripts/*.sh scripts/project/*.sh
