@@ -55,6 +55,14 @@ IS_FRAMEWORK_REPO = MARKER.exists()
 # output
 # ---------------------------------------------------------------------------
 
+# Output uses ✓/✗ and similar. On Windows a piped stdout (CI, git hooks)
+# defaults to the ANSI code page, which cannot encode them and raises
+# UnicodeEncodeError. Force UTF-8 here, and pass it to child Python processes.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+
 _COLOR = sys.stdout.isatty() and os.environ.get("NO_COLOR") is None
 
 

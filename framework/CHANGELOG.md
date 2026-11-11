@@ -3,6 +3,15 @@
 All notable changes to the framework itself. Projects pin a version in
 `framework/VERSION`.
 
+## [0.11.1] — verify runs on Windows
+
+### Fixed
+- `craft.py` crashed with `UnicodeEncodeError: 'charmap' codec can't encode
+  character '\u2713'` on Windows whenever its output was piped (CI, git
+  hooks), because Python fell back to the ANSI code page. stdout and stderr
+  are now forced to UTF-8, and `PYTHONIOENCODING=utf-8` is passed to child
+  Python processes. No project action needed.
+
 ## [0.11.0] — evals are not bot-specific
 
 The eval layer was described correctly in most places but shipped with a
