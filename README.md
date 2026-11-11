@@ -81,11 +81,23 @@ python3 framework/craft.py init     # turns the clone into a project
 ```
 
 `init` strips the framework's own files and installs the project skeleton.
-Then edit the four files that are yours — it prints the list — and run:
+It also removes the `origin` remote, which still points at the framework
+repository — otherwise your first `git push` would land there. Point it at
+your project's own repository instead:
+
+```bash
+git remote add origin <your-project-repo-url>
+```
+
+Then edit the four files that are yours — `init` prints the list — and run:
 
 ```bash
 bash scripts/verify.sh
 ```
+
+The clone keeps the framework's commit history. For a project that starts
+clean, clone with `--depth 1`, then `rm -rf .git && git init -b main` before
+running `init`.
 
 Add `--dry-run` to `init` to see exactly what it changes first.
 
