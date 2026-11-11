@@ -1,0 +1,8 @@
+---
+description: Project working framework
+alwaysApply: true
+---
+
+Follow the instructions in AGENTS.md at the repository root, and the process in
+framework/working-guide.md. Do not duplicate rules here — AGENTS.md is
+canonical.
