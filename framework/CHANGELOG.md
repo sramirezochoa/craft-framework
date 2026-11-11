@@ -18,6 +18,12 @@ write access to the framework — landed there.
 - `README.md` and `user-guide.md` §1 describe the step, how to start with a
   clean history, and that upgrades need no git link to the framework.
 
+### Fixed
+- **Every new project failed `verify` right after `init`.** `craft.py manifest`
+  listed files git ignores — a maintainer's `.DS_Store` — so a fresh clone
+  reported them missing. The manifest now skips git-ignored files and OS junk
+  (`.DS_Store`, `Thumbs.db`, `desktop.ini`, `__pycache__`).
+
 ### Migration
 - None for existing projects: `init` runs once, at project creation. A project
   created earlier should check `git remote -v` and repoint `origin` if it

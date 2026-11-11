@@ -695,10 +695,29 @@ def cmd_sync(args, rep: Report) -> int:
 MANIFEST = FRAMEWORK / "MANIFEST.sha256"
 
 
+# Never part of the framework, even when git cannot tell us so.
+JUNK_NAMES = {".DS_Store", "Thumbs.db", "desktop.ini"}
+
+
+def _ignored_files() -> set:
+    """Files under framework/ that git ignores. A clone never has them, so
+    listing them in the manifest makes every new project fail integrity."""
+    r = subprocess.run(["git", "ls-files", "--others", "--ignored",
+                        "--exclude-standard", "-z", "framework"],
+                       cwd=REPO, capture_output=True, text=True) if have("git") else None
+    if r is None or r.returncode != 0:
+        return set()
+    return {(REPO / rel).resolve() for rel in r.stdout.split("\0") if rel}
+
+
 def _manifest_files() -> list:
+    ignored = _ignored_files()
     files = [p for p in FRAMEWORK.rglob("*")
              if p.is_file()
              and p.name != "MANIFEST.sha256"
+             and p.name not in JUNK_NAMES
+             and "__pycache__" not in p.parts
+             and p.resolve() not in ignored
              and "example" not in p.relative_to(FRAMEWORK).parts]
     shim = REPO / "scripts" / "verify.sh"
     if shim.is_file():
@@ -949,6 +968,8 @@ def cmd_init(args, rep: Report) -> int:
         if _git("remote", "remove", "origin").returncode == 0:
             print(f"  unlinked  git remote origin ({origin})")
             print("            so a push cannot land on the framework repository")
+            print(f"            (if that was your project's own repository: "
+                  f"git remote add origin {origin})")
         else:
             print(_c("31", f"  ! could not remove git remote origin ({origin}) — "
                            "run: git remote remove origin"))
