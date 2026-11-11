@@ -3,6 +3,17 @@
 All notable changes to the framework itself. Projects pin a version in
 `framework/VERSION`.
 
+## [0.11.3] — verify finds Git Bash on Windows
+
+### Fixed
+- On Windows, `craft.py` launched project hooks (lint, tests) and `release`'s
+  verify run with a bare `bash`, which resolves to `System32\bash.exe` — the
+  WSL launcher. With no Linux distribution installed (GitHub's Windows
+  runners, most developer machines) every hook failed with "Windows Subsystem
+  for Linux has no installed distributions". `craft.py` now skips the WSL
+  launcher and uses Git Bash, from `PATH` or next to `git`, and reports
+  clearly when no usable bash exists. No project action needed.
+
 ## [0.11.2] — tooling.md matches the tooling
 
 ### Fixed

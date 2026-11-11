@@ -149,6 +149,36 @@ def have(cmd: str) -> bool:
     return shutil.which(cmd) is not None
 
 
+def find_bash() -> str | None:
+    """A bash that can run our scripts, or None.
+
+    On Windows a bare "bash" resolves to C:\\Windows\\System32\\bash.exe, the WSL
+    launcher, which fails when no Linux distribution is installed (as on
+    GitHub's Windows runners). Skip it and use Git Bash instead.
+    """
+    if os.name != "nt":
+        return shutil.which("bash")
+    sysroot = os.path.normcase(os.environ.get("SystemRoot", r"C:\Windows"))
+
+    def usable(path: str) -> bool:
+        p = os.path.normcase(os.path.abspath(path))
+        return (os.path.isfile(p) and not p.startswith(sysroot)
+                and "windowsapps" not in p)
+
+    for d in os.environ.get("PATH", "").split(os.pathsep):
+        candidate = os.path.join(d.strip('"'), "bash.exe")
+        if d and usable(candidate):
+            return candidate
+    git = shutil.which("git")
+    if git:
+        # Git for Windows: <root>\cmd\git.exe or <root>\mingw64\bin\git.exe
+        for root in list(Path(git).resolve().parents)[1:3]:
+            for rel in ("bin/bash.exe", "usr/bin/bash.exe"):
+                if usable(str(root / rel)):
+                    return str(root / rel)
+    return None
+
+
 def sha256(path: Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as fh:
@@ -941,7 +971,11 @@ def cmd_release(args, rep: Report) -> int:
 
     print(_c("1", "\n==> verify"))
     sys.stdout.flush()
-    code = subprocess.run(["bash", "scripts/verify.sh"], cwd=REPO).returncode
+    bash = find_bash()
+    if bash is None:
+        print(_c("31", "\n✗ release blocked: bash not found (on Windows, install Git for Windows)"))
+        return 1
+    code = subprocess.run([bash, "scripts/verify.sh"], cwd=REPO).returncode
     if code != 0:
         print(_c("31", "\n✗ release blocked: verify failed"))
         return 1
@@ -1017,11 +1051,15 @@ def _run_hook(name: str, rep: Report) -> None:
     if not impl.is_file():
         rep.bad(f"missing {impl.relative_to(REPO)}")
         return
+    bash = find_bash()
+    if bash is None:
+        rep.bad("bash not found — on Windows, install Git for Windows")
+        return
     env = dict(os.environ, PY=sys.executable)
     # Our stdout is buffered; the subprocess writes straight to the terminal.
     # Without this flush its output lands above our own headings.
     sys.stdout.flush()
-    result = subprocess.run(["bash", "-c", HOOK_HARNESS, "harness", name],
+    result = subprocess.run([bash, "-c", HOOK_HARNESS, "harness", name],
                             cwd=REPO, env=env)
     if result.returncode == 97:
         rep.skip(f"{name} not defined in scripts/project/verify-impl.sh")
