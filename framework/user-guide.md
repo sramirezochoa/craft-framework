@@ -75,8 +75,23 @@ collaborators match.
    the project skeleton. Run it with `--dry-run` first if you want to see
    exactly what it touches.
 
+   It also removes the `origin` remote, because a fresh clone still points at
+   the framework repository and your first `git push` would land there.
+   Connect your project's own repository:
+
+   ```bash
+   git remote add origin <your-project-repo-url>
+   ```
+
+   *Want a clean history?* The clone carries the framework's commits. Clone
+   with `--depth 1`, then run `rm -rf .git && git init -b main` before `init`.
+
    *Already have a repository?* Copy the contents in alongside your code,
-   then run `init` there.
+   then run `init` there. Your `origin` is left alone — `init` only removes a
+   remote that is itself a framework repository.
+
+   Upgrades never need a git link to the framework: `craft.py upgrade` copies
+   from a local checkout (§13).
 
 2. **Edit the four files that are yours.** Nothing here is ever overwritten
    by an upgrade:

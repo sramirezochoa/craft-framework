@@ -695,10 +695,29 @@ def cmd_sync(args, rep: Report) -> int:
 MANIFEST = FRAMEWORK / "MANIFEST.sha256"
 
 
+# Never part of the framework, even when git cannot tell us so.
+JUNK_NAMES = {".DS_Store", "Thumbs.db", "desktop.ini"}
+
+
+def _ignored_files() -> set:
+    """Files under framework/ that git ignores. A clone never has them, so
+    listing them in the manifest makes every new project fail integrity."""
+    r = subprocess.run(["git", "ls-files", "--others", "--ignored",
+                        "--exclude-standard", "-z", "framework"],
+                       cwd=REPO, capture_output=True, text=True) if have("git") else None
+    if r is None or r.returncode != 0:
+        return set()
+    return {(REPO / rel).resolve() for rel in r.stdout.split("\0") if rel}
+
+
 def _manifest_files() -> list:
+    ignored = _ignored_files()
     files = [p for p in FRAMEWORK.rglob("*")
              if p.is_file()
              and p.name != "MANIFEST.sha256"
+             and p.name not in JUNK_NAMES
+             and "__pycache__" not in p.parts
+             and p.resolve() not in ignored
              and "example" not in p.relative_to(FRAMEWORK).parts]
     shim = REPO / "scripts" / "verify.sh"
     if shim.is_file():
@@ -868,6 +887,30 @@ def _init_destination(rel: Path) -> Path:
     return DOCS / rel
 
 
+def _git(*argv: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *argv], cwd=REPO, capture_output=True, text=True)
+
+
+def _framework_origin() -> str | None:
+    """The URL of `origin` if it is a framework repository, else None.
+
+    A fresh clone of the framework still pushes to it, so a project's first
+    `git push` would land on the framework. A remote counts as the framework
+    when one of its branches carries the framework-repo marker; a project's
+    own remote (framework copied into an existing repository) never does.
+    """
+    if not have("git") or _git("rev-parse", "--git-dir").returncode != 0:
+        return None
+    url = _git("remote", "get-url", "origin")
+    if url.returncode != 0:
+        return None
+    refs = _git("for-each-ref", "--format=%(refname)", "refs/remotes/origin")
+    for ref in refs.stdout.split():
+        if _git("cat-file", "-e", f"{ref}:{MARKER.name}").returncode == 0:
+            return url.stdout.strip()
+    return None
+
+
 def cmd_init(args, rep: Report) -> int:
     require_framework_repo("init")
     if not PROJECT_TEMPLATE.is_dir():
@@ -888,6 +931,10 @@ def cmd_init(args, rep: Report) -> int:
         if src.is_file():
             rel = src.relative_to(PROJECT_TEMPLATE)
             plan.append(("install", _init_destination(rel).relative_to(REPO).as_posix()))
+
+    origin = _framework_origin()
+    if origin:
+        plan.append(("unlink", f"git remote origin ({origin}) — it is the framework"))
 
     if args.dry_run:
         print("init would:")
@@ -917,6 +964,16 @@ def cmd_init(args, rep: Report) -> int:
         shutil.copyfile(src, dst)
         print(f"  installed {dst.relative_to(REPO)}")
 
+    if origin:
+        if _git("remote", "remove", "origin").returncode == 0:
+            print(f"  unlinked  git remote origin ({origin})")
+            print("            so a push cannot land on the framework repository")
+            print(f"            (if that was your project's own repository: "
+                  f"git remote add origin {origin})")
+        else:
+            print(_c("31", f"  ! could not remove git remote origin ({origin}) — "
+                           "run: git remote remove origin"))
+
     cmd_index(argparse.Namespace(check=False), rep)
     cmd_sync(argparse.Namespace(check=False), rep)
 
@@ -928,7 +985,11 @@ def cmd_init(args, rep: Report) -> int:
     print("  .github/actions/setup/action.yml  your CI toolchain\n")
     print("Then:")
     print("  bash scripts/verify.sh")
-    print("  git add -A && git commit -m 'initial'\n")
+    print("  git add -A && git commit -m 'initial'")
+    if origin:
+        print("  git remote add origin <your-project-repo-url>")
+        print("  git push -u origin main")
+    print()
     print("Humans: framework/user-guide.md.  Agents: framework/agent-rules.md.")
     return 0
 

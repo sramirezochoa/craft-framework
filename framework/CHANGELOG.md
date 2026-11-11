@@ -3,6 +3,32 @@
 All notable changes to the framework itself. Projects pin a version in
 `framework/VERSION`.
 
+## [0.12.0] — init unlinks the framework remote
+
+A project started with `git clone <framework> my-project` kept `origin`
+pointing at the framework repository, so its first `git push` — by anyone with
+write access to the framework — landed there.
+
+### Changed
+- **`craft.py init` removes `origin` when it is a framework repository** (one
+  of its branches carries `.craft-framework-repo`). A project's own remote —
+  the framework copied into an existing repository — is left alone. The step
+  appears in `init --dry-run`, and `init` prints the commands to connect the
+  project's own repository.
+- `README.md` and `user-guide.md` §1 describe the step, how to start with a
+  clean history, and that upgrades need no git link to the framework.
+
+### Fixed
+- **Every new project failed `verify` right after `init`.** `craft.py manifest`
+  listed files git ignores — a maintainer's `.DS_Store` — so a fresh clone
+  reported them missing. The manifest now skips git-ignored files and OS junk
+  (`.DS_Store`, `Thumbs.db`, `desktop.ini`, `__pycache__`).
+
+### Migration
+- None for existing projects: `init` runs once, at project creation. A project
+  created earlier should check `git remote -v` and repoint `origin` if it
+  still names the framework.
+
 ## [0.11.3] — verify finds Git Bash on Windows
 
 ### Fixed
