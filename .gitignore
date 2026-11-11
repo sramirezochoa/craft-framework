@@ -1,7 +1,6 @@
-# Generated adapters — regenerate with: bash framework/scripts/sync-adapters.sh
-# Commit them instead if collaborators cannot run the script.
-.claude/skills/
-.cursor/rules/
+# Generated adapters (.claude/skills/, .cursor/rules/) are committed, not
+# ignored: verify checks them and CI needs them. Regenerate with:
+#   python3 framework/craft.py sync
 
 # Local tool state
 .claude/settings.local.json
