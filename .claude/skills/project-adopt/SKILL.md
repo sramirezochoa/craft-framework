@@ -42,8 +42,8 @@ and adjust — getting granularity right matters more than the names.
 
 ### 3. Make verify run
 
-Point `scripts/verify.sh` at whatever tests and lint exist today, even if
-coverage is poor. A weak gate that runs beats a strong one that does not.
+Point `scripts/project/verify-impl.sh` at whatever tests and lint exist
+today, even if coverage is poor. A weak gate that runs beats a strong one that does not.
 
 Note gaps in `docs/overview.md` rather than fixing them now.
 
@@ -74,9 +74,9 @@ Executable descriptions do not drift.
 
 Once a few capabilities are documented:
 
-- Add project amendments to `framework/constitution.md` for rules this
-  codebase actually needs
-- Strengthen `verify.sh` — add lint, coverage thresholds, the drift check
+- Add project amendments to `docs/amendments.md` for rules this codebase
+  actually needs
+- Strengthen `verify-impl.sh` — add lint, coverage thresholds, the drift check
 - Add regression cases for the bugs that keep recurring
 - Run `drift-check` on documented capabilities periodically
 

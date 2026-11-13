@@ -36,8 +36,32 @@ Note any divergence. If it is significant, it belongs in the change spec too.
 - Add one row to the **Change log** table pointing at the change folder
 - Set `last-verified` to today
 
-**New capability** — create it from `framework/templates/capability.md`
-and add it to `docs/capabilities/README.md`.
+**Planned capability** (`status: planned`) — this change built it, or the
+first part of it:
+
+- Replace "Not built yet." in **Current behaviour** with what was actually
+  built — not what the change spec intended, if the two differ
+- Fill in **Rules and constraints**, **Failure behaviour**, **Where it lives**
+- Remove this change from **Planned changes**; delete the section once it is
+  empty
+- Set `status: active`, add the change-log row, set `last-verified`
+
+A capability built across several changes becomes `active` with the first one
+and grows with each after it. The drift check fails a merged change whose
+capability is still `planned`.
+
+**New capability** (no document yet) — create it from
+`framework/templates/capability.md` with `status: active` and add it to
+`docs/capabilities/README.md`.
+
+**Deprecated by this change** — the behaviour still runs, so **Current
+behaviour** stays accurate. Set `status: deprecated` and fill in the
+**Deprecation** section: why, the replacement, the change that will remove it.
+
+**Removed by this change** — if another capability replaces it, set
+`status: superseded-by: <name>`, keep **Purpose** and the pointer, and trim the
+rest. If nothing replaces it, delete the document; the change spec and git keep
+the history.
 
 ### 3. Do not turn the document into a history
 
@@ -95,7 +119,8 @@ change that touched them.
 
 ## Done when
 
-- Every affected capability doc describes the system as it is now
+- Every affected capability doc describes the system as it is now, and no
+  capability this change built is still `planned`
 - Each has a change-log row for this change and a current `last-verified` date
 - `docs/architecture.md` matches, if the plan ticked any structural impact
 - Generated indexes are rebuilt

@@ -89,7 +89,10 @@ your project's own repository instead:
 git remote add origin <your-project-repo-url>
 ```
 
-Then edit the four files that are yours — `init` prints the list — and run:
+Then ask your coding agent to run the **`project-start`** skill. It
+interviews you — or reads a brief you hand it — and drafts the overview,
+architecture, planned capabilities, project rules and verify wiring for you to
+approve. Prefer to do it by hand? Edit the four files `init` lists. Then run:
 
 ```bash
 bash scripts/verify.sh

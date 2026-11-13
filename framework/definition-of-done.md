@@ -107,6 +107,8 @@ stops here and hands back; it does not pass its own gates.
 **The change is DONE when:**
 
 - [ ] Every affected capability doc reflects the new reality
+- [ ] A capability this change built is no longer `planned` — it is `active`,
+      with its current behaviour written
 - [ ] The capability doc's change log references this change ID
 - [ ] `docs/architecture.md` updated, if the plan's structural impact section
       had anything ticked — and `last-verified` moved on

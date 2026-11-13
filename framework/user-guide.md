@@ -45,8 +45,8 @@ reasoning. [workflows.md](workflows.md) has the same thing as diagrams.
 | `docs/changes/NNN/*` | Agent drafts, **you approve** | Gates 1 and 2 |
 | `docs/adr/*.md` | Agent drafts, **you approve** | Gate 2, accepted at gate 6 |
 | `docs/architecture.md` | Agent drafts, **you approve** | Gate 6, when the plan ticks structural impact |
-| `docs/overview.md` | **You** | Setup, then rarely |
-| `docs/amendments.md` | **You** | When a project rule is needed |
+| `docs/overview.md` | **You** (or `project-start` drafts it, you approve) | Setup, then rarely |
+| `docs/amendments.md` | **You** (or `project-start` drafts it, you approve) | When a project rule is needed |
 
 Only the index tables update without review. Everything else is prose, and
 prose that changes without a human reading it is how documentation becomes
@@ -93,24 +93,31 @@ collaborators match.
    Upgrades never need a git link to the framework: `craft.py upgrade` copies
    from a local checkout (§13).
 
-2. **Edit the four files that are yours.** Nothing here is ever overwritten
-   by an upgrade:
+2. **Ask your agent to run the `project-start` skill.** It interviews you —
+   give it a product brief, a PRD or pasted notes first if you have them, and
+   it only asks about what is missing — then drafts each document for you to
+   approve:
 
-   | File | What to put in it |
+   | It asks about | It writes |
    |---|---|
-   | `AGENTS.md` | Two lines of project description |
-   | `docs/overview.md` | Stack, how to run it, conventions you're choosing |
-   | `scripts/project/verify-impl.sh` | Your lint and test commands |
-   | `.github/actions/setup/action.yml` | Your CI toolchain |
+   | The product, its users, domain terms | `AGENTS.md` description, `docs/overview.md` |
+   | What the system must do | `planned` capability documents |
+   | Stack and tools — language, build tool, test framework, linter | `overview.md` stack, `scripts/project/verify-impl.sh`, `.github/actions/setup/action.yml` |
+   | Components, integrations, cross-cutting concerns | `docs/architecture.md` |
+   | Rules that must never be broken, conventions | `docs/amendments.md`, `overview.md` conventions |
+   | — | ADR 0001 recording the stack, and a draft change `001-project-skeleton` |
 
-   Two more are yours but can wait: `docs/amendments.md` (project-specific
-   rules — fine to leave empty) and `docs/architecture.md` (leave the
-   skeleton; it fills in through gate 6 as structure emerges).
+   "Not decided yet" is a fine answer: it is recorded as an `OPEN QUESTION`,
+   never guessed. **Capabilities start as `planned`** — purpose and scope, no
+   behaviour. Intended behaviour goes in change specs, and each change turns
+   its capability `active` when it is built.
 
-   **Only `overview.md` and the verify wiring need real content on day one.**
-   Capabilities and architecture accrete as you work — writing them up front
-   on a greenfield project is mostly speculation, and the first three changes
-   will contradict it.
+   There are no build files yet, so the generated verify wiring reports *not
+   scaffolded yet* until change 001 creates the project skeleton.
+
+   *Prefer to do it by hand?* Edit `AGENTS.md`, `docs/overview.md`,
+   `scripts/project/verify-impl.sh` and `.github/actions/setup/action.yml`.
+   Nothing in these is ever overwritten by an upgrade.
 
 3. **Confirm the gate works:**
 

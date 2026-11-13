@@ -33,7 +33,8 @@ See `framework/definition-of-done.md`.
 
 ### Gate 6 — folded back  ⚠️ the one that gets skipped
 
-- [ ] Capability doc(s) updated to describe the new reality
+- [ ] Capability doc(s) updated to describe the new reality — any this change
+      built moved from `planned` to `active`
 - [ ] Capability change-log row added, `last-verified` updated
 - [ ] `docs/architecture.md` updated, if the plan ticked any structural impact
 - [ ] Generated indexes rebuilt (`python3 framework/craft.py index`)

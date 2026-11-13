@@ -25,9 +25,15 @@ Ask the user if it is not obvious:
 Check `docs/capabilities/README.md`.
 
 - Existing capability → read its document fully.
+- `planned` capability → read its purpose, scope and open questions. This
+  change spec is where its intended behaviour gets written; the capability
+  document stays free of behaviour until gate 6. Add this change to its
+  **Planned changes** list if it is not there.
+- `deprecated` capability → building on it is a smell. Say so and confirm with
+  the user before continuing.
 - No document yet, but the area exists → say so. Writing that capability doc is
   part of this change (see `project-adopt`).
-- Genuinely new → this change will create one.
+- Genuinely new, not even planned → this change will create one.
 
 List every capability touched. A change that spans several must say so.
 
@@ -39,6 +45,9 @@ failure modes.
 
 If the capability doc and the code disagree, say so explicitly — correcting it
 is part of this change.
+
+For a `planned` capability, current behaviour is "not built" — but check the
+code anyway and say so if any part of it already exists.
 
 **Stop and confirm this understanding with the user before continuing.**
 This gate catches more wrong changes than any other.

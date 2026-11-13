@@ -3,6 +3,49 @@
 All notable changes to the framework itself. Projects pin a version in
 `framework/VERSION`.
 
+## [0.13.0] — capability lifecycle and guided new-project setup
+
+New projects had nothing to write: a capability describes what the system does
+*today*, and on day one it does nothing. The framework served existing
+codebases and told new ones to skip capabilities and architecture.
+
+### Added
+- **Capability lifecycle.** `planned` joins `active`, `deprecated` and
+  `superseded-by: <name>`, and all four are now defined — each describes what
+  is true today. A `planned` capability holds purpose, scope, expected
+  interfaces and planned changes, **never behaviour**: intended behaviour lives
+  in change specs (ADR 0003). The capability template gains **Planned changes**
+  and **Deprecation** sections.
+- **`project-start` skill.** An interview — fed by a brief, PRD or pasted notes
+  if the developer has them — that drafts `AGENTS.md`, `docs/overview.md`,
+  `docs/architecture.md`, `docs/amendments.md`, `planned` capability documents,
+  `scripts/project/verify-impl.sh` and `.github/actions/setup/action.yml` from
+  the stack and tools chosen, ADR 0001 and a draft change 001 for the project
+  skeleton. `skills/project-start/stacks.md` maps stacks to lint, test and CI
+  setup commands. Until the skeleton exists, verify reports *not scaffolded
+  yet* instead of failing.
+- **Drift enforces the lifecycle:** error when a merged change leaves its
+  capability `planned` (gate 6 skipped); warning on an unknown status.
+- `craft.py init` ends by pointing at `project-start` / `project-adopt`.
+- The framework repository runs its own tests (`framework/tests/`) in verify.
+
+### Fixed
+- Frontmatter values kept trailing YAML comments, so a change created from the
+  template had `status: draft   # draft | approved | …` and drift treated it as
+  something other than a draft. ` #` now starts a comment, as in YAML; quoted
+  values are untouched.
+- Drift's "no change-log entry" check searched the whole capability document,
+  so a change named anywhere — now including **Planned changes** — counted as
+  logged. It reads only the **Change log** section.
+- `project-adopt` pointed amendments at `framework/constitution.md` and verify
+  wiring at `scripts/verify.sh`; now `docs/amendments.md` and
+  `scripts/project/verify-impl.sh`.
+
+### Migration
+- None required. Existing `active`, `deprecated` and `superseded-by` documents
+  are unchanged. Run `bash scripts/verify.sh` after upgrading: a capability
+  with a status outside the four is now reported.
+
 ## [0.12.0] — init unlinks the framework remote
 
 A project started with `git clone <framework> my-project` kept `origin`
