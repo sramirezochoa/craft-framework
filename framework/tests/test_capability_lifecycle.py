@@ -110,6 +110,17 @@ class CapabilityLifecycleTest(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout)
         self.assertIn("drift: clean", r.stdout)
 
+    def test_planned_changes_list_is_not_a_change_log_entry(self):
+        """AC-2: naming the change under Planned changes does not satisfy gate 6."""
+        doc = capability("active").replace(
+            "## Change log\n\n| [001](../changes/001-build-orders/change.md) | 2026-11-13 | Built |\n",
+            "## Planned changes\n\n1. `001-build-orders`\n\n## Change log\n\n")
+        self.project.write("docs/capabilities/orders.md", doc)
+        self.project.write("docs/changes/001-build-orders/change.md", change("merged"))
+        r = self.project.drift()
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("no change-log entry", r.stdout)
+
     def test_every_lifecycle_status_is_accepted(self):
         """AC-3: planned, active, deprecated and superseded-by are all valid."""
         for status in ("planned", "active", "deprecated", "superseded-by: billing"):

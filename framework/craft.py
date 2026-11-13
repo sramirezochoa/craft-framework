@@ -393,8 +393,11 @@ def _check_change(folder: Path, test_refs: set, errors: list, warns: list) -> No
                           f"{folder.name} — gate 6 sets it to 'active' and writes "
                           f"its current behaviour")
         change_id = meta.get("change", folder.name.split("-")[0])
-        if (folder.name not in cap_text and f"| {change_id} " not in cap_text
-                and f"[{change_id}]" not in cap_text):
+        # Only the Change log counts: "Planned changes" names the same folder
+        # before the work is done.
+        log = cap_text.split("## Change log", 1)[-1]
+        if (folder.name not in log and f"| {change_id} " not in log
+                and f"[{change_id}]" not in log):
             errors.append(f"capability '{cap}': no change-log entry for merged "
                           f"change {folder.name} (gate 6 skipped?)")
 

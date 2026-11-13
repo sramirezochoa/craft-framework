@@ -34,6 +34,9 @@ codebases and told new ones to skip capabilities and architecture.
   template had `status: draft   # draft | approved | …` and drift treated it as
   something other than a draft. ` #` now starts a comment, as in YAML; quoted
   values are untouched.
+- Drift's "no change-log entry" check searched the whole capability document,
+  so a change named anywhere — now including **Planned changes** — counted as
+  logged. It reads only the **Change log** section.
 - `project-adopt` pointed amendments at `framework/constitution.md` and verify
   wiring at `scripts/verify.sh`; now `docs/amendments.md` and
   `scripts/project/verify-impl.sh`.
