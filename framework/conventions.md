@@ -14,7 +14,17 @@ docs/capabilities/<kebab-case-name>.md
   not `OrderServiceImpl`.
 - No numbering — capabilities are not ordered, they are a set.
 - Listed in `docs/capabilities/README.md`.
-- Status in frontmatter: `active`, `deprecated`, `superseded-by: <name>`.
+- Status in frontmatter, one of:
+
+  | Status | Meaning |
+  |---|---|
+  | `planned` | Decided, not built. Purpose and scope only — no behaviour |
+  | `active` | Built. Current behaviour describes it |
+  | `deprecated` | Still runs as described; being phased out, nothing new depends on it |
+  | `superseded-by: <name>` | Replaced by another capability |
+
+  A capability removed with no replacement has its document deleted by the
+  removal change. `craft.py drift` warns on any other value.
 
 ## Change folders
 

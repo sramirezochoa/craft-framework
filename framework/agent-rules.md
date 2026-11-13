@@ -102,6 +102,7 @@ Load the one matching the task:
 | `update-capability` | Folding a merged change into the capability doc |
 | `drift-check` | Checking docs against code |
 | `new-adr` | Recording an architectural decision |
+| `project-start` | Setting up a new project with no code yet — interview, then draft its docs |
 | `project-adopt` | Introducing this framework to an existing codebase |
 
 If your tool does not support skills, read the `SKILL.md` file directly and

@@ -122,7 +122,12 @@ def frontmatter(text: str) -> dict:
         if not line or line.startswith("#") or ":" not in line:
             continue
         key, _, value = line.partition(":")
-        out[key.strip()] = value.strip().strip('"').strip("'")
+        value = value.strip()
+        # As in YAML, " #" starts a comment in an unquoted value. The templates
+        # rely on this: `status: draft   # draft | approved | ...`.
+        if value[:1] not in {'"', "'"} and " #" in value:
+            value = value.split(" #", 1)[0].rstrip()
+        out[key.strip()] = value.strip('"').strip("'")
     return out
 
 
@@ -315,13 +320,15 @@ TEST_DIRS = ["src", "test", "tests", "evals", "app", "lib"]
 TEST_SUFFIXES = {".java", ".kt", ".py", ".js", ".ts", ".tsx", ".go", ".rb",
                  ".cs", ".rs", ".yaml", ".yml", ".feature"}
 AC_RE = re.compile(r"\bAC-\d+\b")
+CAPABILITY_STATUSES = ("planned", "active", "deprecated", "superseded-by: <name>")
 OPEN_Q_RE = re.compile(r"OPEN QUESTION:", re.IGNORECASE)
 
 
 def _test_references() -> set:
     """Every AC id mentioned anywhere in test or eval source."""
     refs = set()
-    for folder in TEST_DIRS:
+    folders = TEST_DIRS + (["framework/tests"] if IS_FRAMEWORK_REPO else [])
+    for folder in folders:
         root = REPO / folder
         if not root.is_dir():
             continue
@@ -381,6 +388,10 @@ def _check_change(folder: Path, test_refs: set, errors: list, warns: list) -> No
             continue
 
         cap_text = read(cap_file)
+        if frontmatter(cap_text).get("status") == "planned":
+            errors.append(f"capability '{cap}': still 'planned' after merged change "
+                          f"{folder.name} — gate 6 sets it to 'active' and writes "
+                          f"its current behaviour")
         change_id = meta.get("change", folder.name.split("-")[0])
         if (folder.name not in cap_text and f"| {change_id} " not in cap_text
                 and f"[{change_id}]" not in cap_text):
@@ -391,6 +402,22 @@ def _check_change(folder: Path, test_refs: set, errors: list, warns: list) -> No
         if merged_on and verified and verified < merged_on:
             errors.append(f"capability '{cap}': last-verified {verified} predates "
                           f"merged change {folder.name} ({merged_on})")
+
+
+def _valid_capability_status(status: str) -> bool:
+    if status.startswith("superseded-by:"):
+        return bool(status.partition(":")[2].strip())
+    return status in CAPABILITY_STATUSES
+
+
+def _check_capability_statuses(warns: list) -> None:
+    for path in sorted(CAPABILITIES.glob("*.md")) if CAPABILITIES.is_dir() else []:
+        if path.name == "README.md":
+            continue
+        status = frontmatter(read(path)).get("status", "")
+        if not _valid_capability_status(status):
+            warns.append(f"capability '{path.stem}': unknown status '{status}' — "
+                         f"use one of: {', '.join(CAPABILITY_STATUSES)}")
 
 
 def cmd_drift(args, rep: Report) -> int:
@@ -404,6 +431,7 @@ def cmd_drift(args, rep: Report) -> int:
     folders = sorted(p for p in CHANGES.iterdir() if p.is_dir())
     for folder in folders:
         _check_change(folder, test_refs, errors, warns)
+    _check_capability_statuses(warns)
 
     for msg in warns:
         print(f"  warn:  {msg}")
@@ -978,7 +1006,11 @@ def cmd_init(args, rep: Report) -> int:
     cmd_sync(argparse.Namespace(check=False), rep)
 
     print(f"\n{_c('32', 'This is now a project')} using framework {version()}.\n")
-    print("Edit the four files that are yours:")
+    print("Next, ask your coding agent to run the setup skill:")
+    print("  new project, no code yet ........ project-start  (an interview; give it")
+    print("                                    a brief or pasted notes if you have them)")
+    print("  existing codebase ............... project-adopt\n")
+    print("Or edit the four files that are yours by hand:")
     print("  AGENTS.md                         two lines of project description")
     print("  docs/overview.md                  stack, how to run it, conventions")
     print("  scripts/project/verify-impl.sh    your lint and test commands")
@@ -1149,6 +1181,14 @@ def cmd_verify(args, rep: Report) -> int:
 
     rep.say("Tests")
     _run_hook("project_test", rep)
+
+    if IS_FRAMEWORK_REPO and (FRAMEWORK / "tests").is_dir():
+        rep.say("Framework tests")
+        sys.stdout.flush()
+        r = subprocess.run([sys.executable, "-I", "-m", "unittest", "discover",
+                            "-s", str(FRAMEWORK / "tests"), "-t", str(FRAMEWORK / "tests"),
+                            "-q"], cwd=REPO)
+        rep.ok("framework tests") if r.returncode == 0 else rep.bad("framework tests")
 
     rep.say("Evals")
     cases = list((REPO / "evals").rglob("*.yaml")) if (REPO / "evals").is_dir() else []

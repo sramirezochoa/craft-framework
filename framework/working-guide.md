@@ -55,6 +55,24 @@ Too fine and you drown in documents. Too coarse and each becomes a dumping
 ground nobody reviews. If a capability doc exceeds roughly two pages, it is
 probably two capabilities.
 
+A capability is a unit of *behaviour*, not of code. It often lines up with a
+module, but one capability may span several modules and one module may serve
+several capabilities — the **Where it lives** table in each document is the map.
+
+**Lifecycle.** Every status describes what is true *today*:
+
+| Status | Today | The document holds |
+|---|---|---|
+| `planned` | Decided, not built | Purpose, scope, expected interfaces, open questions, planned changes. No behaviour |
+| `active` | Built | Current behaviour |
+| `deprecated` | Still runs, being phased out | Current behaviour, plus why, the replacement and the removal change |
+| `superseded-by: <name>` | Replaced | A pointer to the replacement |
+
+Intended behaviour never goes in a capability document — it goes in the change
+spec that will build it. A change turns a `planned` capability `active` at
+gate 6. Deprecating is a decision; removing is a change like any other, and a
+capability removed with no replacement has its document deleted by that change.
+
 ### Change — one unit of work
 
 A delta against one or more capabilities. Numbered, time-ordered, archived
@@ -62,8 +80,11 @@ after merge.
 
 `docs/changes/NNN-slug/{change.md, plan.md, tasks.md}`
 
-Greenfield is simply a change whose delta is "this capability does not exist
-yet".
+On a new project, capabilities start as `planned` documents — the
+`project-start` skill writes them from an interview — and each change that
+builds one turns it `active`. On an existing codebase, undocumented areas are
+listed by name and documented the first time a change touches them
+(`project-adopt`).
 
 **Why both?** Changes alone give perfect history but make current behaviour
 something you reconstruct by replaying five documents. Capabilities alone give
